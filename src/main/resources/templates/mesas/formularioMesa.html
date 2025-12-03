@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestión de Mesas</title>
+    
+    <head th:replace="~{fragments/layout :: head('Gestión de Mesas')}"></head>
+
+    <style>
+        .form-container {
+            background: var(--tb-blanco);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            width: 100%;
+            border-top: 5px solid var(--tb-azul-claro); 
+            margin: 0 auto;
+        }
+
+        h2 {
+            color: var(--tb-azul-oscuro);
+            font-weight: 700;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--tb-separador);
+            text-align: center;
+        }
+
+        .btn-guardar {
+            background: var(--tb-azul-claro);
+            color: var(--tb-blanco);
+            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .btn-guardar:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+  
+  <header th:replace="~{fragments/layout :: header('home')}"></header>
+
+  <main class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8"> 
+        
+        <div class="form-container">
+          <h2 th:text="${mesa.idMesa != null ? 'EDITAR MESA #' + mesa.idMesa : 'NUEVA MESA'}">
+            NUEVA MESA
+          </h2>
+
+          <form th:action="@{/mesas/guardar}" method="post" th:object="${mesa}">
+            
+            <input type="hidden" th:field="*{idMesa}" />
+
+            <div class="mb-3">
+                <label for="capacidad">Capacidad (personas)</label>
+                <input type="number" class="form-control" th:field="*{capacidad}" min="1" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="ubicacion">Ubicación</label>
+                <select class="form-select" th:field="*{ubicacion}" required>
+                    <option value="">Selecciona ubicación</option>
+                    <option value="Salón Principal">Salón Principal</option>
+                    <option value="Terraza">Terraza</option>
+                    <option value="Barra">Barra</option>
+                    <option value="VIP">Salón VIP</option>
+                </select>
+            </div>
+            
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a th:href="@{/mesas/lista}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-guardar">
+                    Guardar Mesa
+                </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

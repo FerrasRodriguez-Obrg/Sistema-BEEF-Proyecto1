@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registro Cliente</title>
+  <style>
+    /* VARIABLES THE BEEF - MINIMALISTA */
+    :root{
+      --tb-azul-oscuro:#003366; 
+      --tb-azul-claro:#007bff;   
+      --tb-blanco:#ffffff;
+      --tb-gris-claro:#f8f9fa; /* Fondo general sutil */
+      --tb-gris-fuerte:#343a40; /* Texto principal */
+      --tb-carbon:#1f2937;
+    }
+
+    *{box-sizing:border-box; margin:0; padding:0;}
+
+    body{
+      font-family: 'Poppins', Arial, sans-serif; /* Usamos la fuente Poppins de tu layout */
+      background: var(--tb-gris-claro); /* Fondo claro y limpio */
+      color: var(--tb-gris-fuerte);
+    }
+
+    .container{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:20px;
+    }
+
+    .form-card{
+      /* Tarjeta minimalista: fondo blanco, sombra ligera, bordes suaves */
+      background: var(--tb-blanco);
+      padding:40px;
+      border-radius:10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width:100%;
+      max-width:900px;
+      border-top: 5px solid var(--tb-azul-claro); /* Detalle superior azul */
+    }
+
+    h1{
+      text-align:center;
+      margin-bottom:30px;
+      color: var(--tb-azul-oscuro); /* Título en azul oscuro */
+      font-weight: 700;
+      font-size: 1.8rem;
+    }
+
+    form{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap:25px;
+    }
+
+    label{
+      display:block;
+      margin-bottom:6px;
+      font-weight:600;
+      color: var(--tb-gris-fuerte); /* Etiquetas en gris */
+    }
+
+    input, select{
+      width:100%;
+      padding:10px;
+      border:1px solid var(--tb-separador, #ccc); /* Borde claro */
+      border-radius:6px;
+      font-size:1rem;
+      background:var(--tb-blanco); /* Fondo de input blanco */
+      color: var(--tb-gris-fuerte);
+    }
+
+    input:focus, select:focus{
+      border-color: var(--tb-azul-claro);
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+      outline:none;
+    }
+
+    .full{
+      grid-column: span 2;
+    }
+
+    .actions{
+      grid-column: span 2;
+      display:flex;
+      justify-content:flex-end; /* Botones a la derecha */
+      margin-top:20px;
+      gap: 10px; /* Espacio entre botones */
+    }
+
+    .btn{
+      flex: unset; /* Desactivar flex:1 para botones de ancho automático */
+      padding:12px 25px;
+      margin:0; /* Quitar margen entre botones */
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:1rem;
+      transition: background 0.2s ease;
+    }
+
+    /* Botón Principal (Guardar) */
+    .btn-primary{
+      background: var(--tb-azul-claro); /* Azul de THE BEEF */
+      color:var(--tb-blanco);
+    }
+
+    .btn-primary:hover{
+      background:#0056b3; /* Azul más oscuro al pasar el ratón */
+    }
+
+    /* Botón Secundario (Cancelar) */
+    .btn-secondary{
+      background: #e9ecef; /* Gris claro sutil */
+      color:var(--tb-gris-fuerte);
+      border: 1px solid #ced4da;
+    }
+
+    .btn-secondary:hover{
+      background:#dcdfe3;
+    }
+
+    .hint{
+      font-size:0.85rem;
+      color:var(--tb-gris-fuerte);
+      opacity: 0.7;
+      margin-top:4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="form-card">
+      <h1 th:text="${cliente.id} != null ? 'Editar Cliente' : 'Registro de Cliente'">Registro de Cliente</h1>
+
+      <form th:action="${cliente.id} != null ? @{/actualizar/{id}(id=${cliente.id})} : @{/guardar}"
+            method="post"
+            enctype="multipart/form-data"
+            th:object="${cliente}">
+
+        <div>
+          <label for="id">ID</label>
+          <input type="number" id="id" th:field="*{id}" placeholder="Ej.01" />
+        </div>
+
+        <div>
+          <label for="nombre">Nombre</label>
+          <input type="text" id="nombre" th:field="*{nombre}" placeholder="Ej. Ana Isabel" />
+        </div>
+
+        <div>
+          <label for="apellidos">Apellidos</label>
+          <input type="text" id="apellidos" th:field="*{apellidos}" placeholder="Ej. Morales Ramírez" />
+        </div>
+
+        <div>
+          <label for="email">Email</label>
+          <input type="email" id="email" th:field="*{email}" placeholder="correo@ejemplo.com" />
+        </div>
+
+        <div>
+          <label for="telefono">Teléfono</label>
+          <input type="tel" id="telefono" th:field="*{telefono}" placeholder="747-000-0000" />
+        </div>
+
+        <div>
+          <label for="credito">Crédito</label>
+          <input type="number" step="0.01" min="0" id="credito" th:field="*{credito}" placeholder="0.00" required />
+        </div>
+
+        <div>
+          <label for="destacado">Destacado</label>
+          <select id="destacado" th:field="*{destacado}" required>
+            <option value="">Selecciona...</option>
+            <option value="1">Sí</option>
+            <option value="0">No</option>
+          </select>
+        </div>
+
+        <div class="col-md-8">
+          <label class="form-label" for="foto">Foto del cliente</label>
+          <input class="form-control" type="file" id="foto" name="foto" accept="image/*">
+          <div class="form-text hint">Formatos: JPG, PNG. Máx. 5 MB.</div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn btn-secondary" onclick="window.location.href='/cliente'">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</body>
+</html>

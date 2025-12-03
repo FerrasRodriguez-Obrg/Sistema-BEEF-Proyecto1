@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Menú de THE BEEF</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+
+  <style>
+    /* VARIABLES THE BEEF - MINIMALISTA */
+    :root{
+      --tb-azul-oscuro: #003366; 
+      --tb-azul-claro: #007bff;   
+      --tb-blanco: #ffffff;
+      --tb-gris-claro: #f8f9fa;
+      --tb-gris-fuerte: #343a40;
+      --tb-separador: #dee2e6;
+    }
+    body{
+      background: var(--tb-gris-claro); 
+      font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    .titulo{
+      font-family: Poppins, sans-serif;
+      font-weight: 700;
+      text-align: center;
+      margin: 1.5rem 0 0.5rem;
+      color: var(--tb-azul-oscuro);
+      letter-spacing:.5px;
+      font-size: 2.5rem;
+    }
+    .subtitulo{ text-align:center; color:var(--tb-gris-fuerte); margin-bottom:2rem; opacity:0.7; }
+
+    /* Estilo de la tarjeta de producto */
+    .card-mx{
+      border: 1px solid var(--tb-separador);
+      border-radius: 10px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 4px 15px rgba(0,0,0,.08);
+      transition: transform .2s ease, box-shadow .2s ease;
+      border-left: 4px solid var(--tb-azul-oscuro);
+    }
+    .card-mx:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,.15);
+    }
+    .card-mx .img-wrap{
+      height: 180px; 
+      background: var(--tb-gris-claro);
+      display:flex; align-items:center; justify-content:center;
+      border-right: 1px solid var(--tb-separador);
+    }
+    .card-mx img{ width:100%; height:100%; object-fit:cover; }
+    
+    /* Etiqueta de tipo de producto */
+    .badge-tipo{
+      background: var(--tb-azul-oscuro);
+      color:white; font-weight:600; font-size:.7rem;
+      padding: .3rem .6rem;
+      border-radius: 4px;
+    }
+    
+    /* Chip de Precio */
+    .precio-chip{
+      background: var(--tb-azul-claro);
+      color: #fff; padding:.4rem .9rem; border-radius:6px; 
+      font-weight:700; letter-spacing:.5px;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('productos')}"></header>
+
+  <div class="container py-3">
+    
+    <h2 class="titulo">Menú de THE BEEF</h2>
+    <p class="subtitulo">Disfruta de nuestros platillos y postres recién preparados.</p>
+
+    <div th:if="${msg != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${msg}">Producto agregado exitosamente.</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    
+    <div class="d-flex justify-content-end mb-4">
+        <form th:action="@{/menucliente}" method="get" class="d-flex align-items-center gap-2">
+            <label for="filtroTipo" class="mb-0 text-muted">Filtrar por Tipo:</label>
+            <select name="tipo" id="filtroTipo" class="form-select form-select-sm" onchange="this.form.submit()" style="width: 150px;">
+                <option value="" th:selected="${param_tipo == null or param_tipo == ''}">Mostrar Todos</option>
+                
+                <option value="Platillo" th:selected="${param_tipo == 'Platillo'}">Platillo</option>
+                <option value="Bebida" th:selected="${param_tipo == 'Bebida'}">Bebida</option>
+                <option value="Postre" th:selected="${param_tipo == 'Postre'}">Postre</option>
+            </select>
+        </form>
+    </div>
+    
+    <div th:if="${#lists.isEmpty(listaProducto)}" class="alert alert-info mx-auto" style="max-width:820px;">
+      No hay productos disponibles en el menú.
+    </div>
+
+    <div class="row g-4" th:if="${!#lists.isEmpty(listaProducto)}">
+      <div class="col-12 col-lg-6" th:each="prod : ${listaProducto}">
+        <div class="card-mx h-100 d-flex flex-row">
+          
+          <div class="img-wrap" style="flex: 0 0 35%;">
+            <img class="card-img-top"
+                 th:if="${#strings.isEmpty(prod.fotoproducto)}"
+                 th:src="@{/imagenes/producto/no.jpg}"
+                 th:alt="${prod.nombre}"
+                 onerror="this.onerror=null;this.src='https://via.placeholder.com/800x600?text=Sin+imagen';" />
+
+            <img class="card-img-top"
+                 th:unless="${#strings.isEmpty(prod.fotoproducto)}"
+                 th:src="@{/producto-img/{f}(f=${prod.fotoproducto})}"
+                 th:attr="data-file=${prod.fotoproducto}"
+                 th:alt="${prod.nombre}"
+                 onerror="this.onerror=null;this.src='@{/imagenes/producto/no.jpg}';" />
+          </div>
+          
+          <div class="p-3 d-flex flex-column justify-content-between" style="flex: 0 0 65%;">
+            
+            <div>
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="mb-0" th:text="${prod.nombre}" style="font-weight: 700; color: var(--tb-azul-oscuro);">Nombre del producto</h5>
+                <span class="badge badge-tipo" th:text="${prod.tipo}">Tipo</span>
+              </div>
+              
+              <p class="text-muted" style="font-size: 0.9rem;" th:text="${prod.descripcion} ?: 'Sin descripción.'">Descripción del producto.</p>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <span class="precio-chip" th:text="'$ ' + ${#numbers.formatDecimal(prod.precio, 0, 'COMMA', 2, 'POINT')} + ' MXN'">$ 0.00 MXN</span>
+              
+              <a class="btn btn-sm btn-primary" th:href="@{/pedido/agregar/{id}(id=${prod.id})}" style="font-weight: 600;">
+                <i class="bi bi-cart-plus-fill me-1"></i> Agregar a Pedido
+              </a>
+            </div>
+          </div>
+        </div>	
+      </div>
+    </div>
+    </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

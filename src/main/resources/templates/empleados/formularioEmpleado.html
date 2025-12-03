@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Empleado - Formulario</title>
+    
+    <head th:replace="~{fragments/layout :: head('Gestión de Empleados')}"></head>
+
+    <style>
+        :root {
+          --tb-azul-oscuro: #003366; 
+          --tb-azul-claro: #007bff;   
+          --tb-blanco: #ffffff;
+          --tb-gris-claro: #f8f9fa; 
+          --tb-gris-fuerte: #343a40; 
+          --tb-separador: #dee2e6;
+        }
+        
+        body {
+            background: var(--tb-gris-claro);
+            font-family: Poppins, sans-serif;
+            margin: 0;
+        }
+        
+        .form-container {
+            background: var(--tb-blanco);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            max-width: 600px;
+            width: 100%;
+            border-top: 5px solid var(--tb-azul-claro); 
+            margin: 0 auto;
+        }
+
+        h2 {
+            color: var(--tb-azul-oscuro);
+            font-weight: 700;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--tb-separador);
+            text-align: center;
+        }
+
+        /* Estilos de botones */
+        .btn-guardar {
+            background: var(--tb-azul-claro);
+            color: var(--tb-blanco);
+            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .btn-guardar:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+  
+  <header th:replace="~{fragments/layout :: header('home')}"></header>
+
+  <main class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-7"> 
+        
+        <div class="form-container">
+          <h2 th:text="${empleado.id != null ? 'EDITAR EMPLEADO #' + empleado.id : 'NUEVO EMPLEADO'}">
+            NUEVO EMPLEADO
+          </h2>
+
+          <form th:action="@{/empleados/guardar}" method="post" th:object="${empleado}">
+            
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="nombre">Nombre Completo</label>
+                    <input type="text" class="form-control" th:field="*{nombre}" placeholder="Ej. Juan Pérez" required />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="puesto">Puesto/Rol</label>
+                    <select class="form-select" th:field="*{puesto}" required>
+                        <option value="">Selecciona un puesto</option>
+                        <option value="Camarero">Camarero</option>
+                        <option value="Cocinero">Cocinero</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Gerente">Gerente</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="telefono">Teléfono</label>
+                    <input type="text" class="form-control" th:field="*{telefono}" placeholder="Ej. 5551234567" required />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="fechaIngreso">Fecha de Ingreso</label>
+                    <input type="date" class="form-control" th:field="*{fechaIngreso}" required />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="activo">Estado</label>
+                    <select class="form-select" th:field="*{activo}" required>
+                        <option value="true">Activo</option>
+                        <option value="false">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a th:href="@{/empleados/lista}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-guardar">
+                    Guardar Empleado
+                </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

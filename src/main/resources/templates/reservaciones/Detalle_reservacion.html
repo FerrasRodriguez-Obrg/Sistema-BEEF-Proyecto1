@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle de la Reservación #[[${reservacion.id}]] - THE BEEF</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <style>
+        :root{ --tb-azul-oscuro: #003366; --tb-azul-claro: #007bff; --tb-blanco: #ffffff; --tb-gris-claro: #f8f9fa; --tb-separador: #dee2e6; --tb-red: #dc3545; }
+        body{ background: var(--tb-gris-claro); font-family: Poppins, sans-serif; padding: 20px; }
+        .container { max-width: 900px; margin: 30px auto; background-color: var(--tb-blanco); padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+        .mx-title{ color: var(--tb-azul-oscuro); letter-spacing:.2px; font-weight:700; }
+        .btn-volver{ background-color: #6c757d; color: white; padding: 8px 15px; text-decoration: none; border-radius: 6px; transition: background-color 0.3s; }
+
+        .card-info, .card-pedido { border: 1px solid var(--tb-separador); border-radius: 6px; margin-bottom: 25px; overflow: hidden; }
+        .card-titulo { background-color: var(--tb-azul-oscuro); color: white; padding: 12px 15px; margin: 0; font-size: 1.1em; font-weight: bold; }
+        .detalle-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 15px; }
+        .detalle-item p { margin: 0; font-weight: bold; color: #343a40; font-size: 0.9em; }
+        .detalle-item span { display: block; margin-top: 3px; color: #495057; }
+        
+        .tabla-productos { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .tabla-productos th, .tabla-productos td { padding: 10px 15px; text-align: left; border-bottom: 1px solid var(--tb-separador); }
+        .tabla-productos thead th { background-color: var(--tb-gris-claro); color: #343a40; font-weight: bold; font-size: 0.9rem; }
+        
+        .col-qty, .col-price, .col-subtotal, .col-total { text-align: right; }
+        .total-monto { color: var(--tb-red); font-weight: bold; }
+        .total-row td { border-top: 3px solid var(--tb-azul-claro); font-weight: bold; font-size: 1.1em; }
+        .status-badge { font-weight: 700; }
+    </style>
+</head>
+<body th:object="${reservacion}">
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h2 class="mx-title h4 mb-0">
+            <i class="bi bi-calendar-check me-2" style="color:var(--tb-azul-claro)"></i> Detalle de la Reservación #<span th:text="*{id}">101</span>
+        </h2>
+        <a th:href="@{/reservaciones/index}" class="btn btn-secondary btn-volver">← Volver a Reservaciones</a>
+    </div>
+
+    <div class="card-info">
+        <h3 class="card-titulo">Datos de la Cita y Asignación</h3>
+        
+        <div class="detalle-grid">
+            
+            <div class="detalle-item">
+                <p>Cliente que Reserva:</p>
+                <span th:if="*{cliente != null}" th:text="*{cliente.nombre} + ' ' + *{cliente.apellidos}"></span>
+                <span th:unless="*{cliente != null}">N/A</span>
+            </div>
+            
+            <div class="detalle-item">
+                <p>Fecha y Hora:</p>
+                <span th:text="|${#temporals.format(reservacion.fechaCita, 'dd/MM/yyyy')} a las ${#temporals.format(reservacion.horaCita, 'HH:mm')}|">27/10/2025 20:17</span>
+            </div>
+            
+            <div class="detalle-item">
+                <p>Mesa Asignada:</p>
+                <span th:if="*{mesaAsignada != null}" 
+                      th:text="'Mesa #' + *{mesaAsignada.idMesa} + ' (Capacidad: ' + *{mesaAsignada.capacidad} + 'p.)'"></span>
+                <span th:if="*{mesaAsignada == null}" class="text-muted">No asignada</span>
+            </div>
+            
+            <div class="detalle-item">
+                <p>Empleado Asignado:</p>
+                <span th:if="*{empleadoAsignado != null}" th:text="*{empleadoAsignado.nombre}"></span>
+                <span th:unless="*{empleadoAsignado != null}">—</span>
+            </div>
+            
+            <div class="detalle-item">
+                <p>Personas:</p>
+                <span th:text="*{numPersonas}"></span>
+            </div>
+            
+            <div class="detalle-item">
+                <p>Estado de la Reserva:</p>
+                <span th:text="*{estado}" class="status-badge">CONFIRMADA</span>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${pedido != null}" class="card-pedido" th:object="${pedido}">
+        <h3 class="card-titulo">Productos Ordenados / Consumo de la Visita</h3>
+        
+        <div th:if="${#lists.isEmpty(pedido.detalles)}" class="p-3 text-center text-muted">
+            No se registraron productos para esta reservación.
+        </div>
+        
+        <div th:unless="${#lists.isEmpty(pedido.detalles)}">
+            <table class="tabla-productos">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Producto</th>
+                        <th class="col-qty">Cantidad</th>
+                        <th class="col-price">Precio Unitario</th>
+                        <th class="col-subtotal">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="detalle, stat : *{detalles}">
+                        <td th:text="${stat.index + 1}"></td> <td th:text="${detalle.producto.nombre}"></td>
+                        <td class="col-qty" th:text="${detalle.cantidad}"></td>
+                        
+                        <td class="col-price" th:text="'$' + ${#numbers.formatDecimal(detalle.precioUnitario, 1, 'COMMA', 2, 'POINT')}"></td>
+                        
+                        <td class="col-subtotal" th:text="'$' + ${#numbers.formatDecimal(detalle.subtotal, 1, 'COMMA', 2, 'POINT')}"></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="4" class="total-label text-right">TOTAL DEL CONSUMO:</td>
+                        <td class="total-monto col-total" th:text="'$' + ${#numbers.formatDecimal(pedido.total, 1, 'COMMA', 2, 'POINT')}"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    
+    <div th:unless="${pedido != null}" class="card-pedido">
+        <h3 class="card-titulo">Productos Ordenados / Consumo de la Visita</h3>
+        <div class="p-3 text-center text-secondary">
+            <i class="bi bi-dash-circle me-2"></i> No se ha generado el consumo (Pedido) para esta reservación.
+        </div>
+    </div>
+    
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

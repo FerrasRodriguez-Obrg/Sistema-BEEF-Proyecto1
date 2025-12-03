@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<title>Cliente</title>
+<style>
+ body {
+        font-family: Arial, sans-serif;
+        background-color: #ffe6f0; 
+        text-align: center;        /* centrar texto */
+        margin: 0;
+        padding: 0;
+    }
+    
+     h1 {
+        color: #cc0066;  
+        margin-top: 30px;
+    }
+    
+    </style>
+</head>
+<body>
+                    <h1>BIENVENIDOS CLIENTES</h1>
+                    <h3 th:text="'Nombre del cliente'+ ${nom}"></h3>
+                    <h3 th:text="'Credito disponible'+ ${credito}"></h3>
+                    <h3 th:text="'a la fecha del:'+ ${fecha}"></h3>
+                    <h3 th:text="'Vigente'+ ${vigente}"></h3>
+</body>
+</html>

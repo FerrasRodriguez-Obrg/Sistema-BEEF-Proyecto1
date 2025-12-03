@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle Pedido #<span th:text="${pedido.id}"></span></title>
+    
+    <head th:replace="~{fragments/layout :: head('Detalle de Pedido')}"></head>
+    
+    <style>
+        :root{
+            --tb-azul-oscuro: #003366; 
+            --tb-azul-claro: #007bff;   
+            --tb-gris-fuerte: #343a40; 
+            --tb-separador: #dee2e6;
+            --tb-rojo-claro: #dc3545;
+        }
+
+        /* Estilo para los bloques de resumen */
+        .summary-block {
+            background: var(--tb-blanco);
+            border: 1px solid var(--tb-separador);
+            border-radius: 8px;
+            padding: 1rem;
+            height: 100%;
+        }
+
+        .summary-title {
+            color: var(--tb-azul-oscuro);
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            border-bottom: 2px solid var(--tb-azul-claro);
+            display: inline-block;
+        }
+        
+        .summary-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--tb-gris-fuerte);
+        }
+
+        /* Estilo de la tabla de detalles */
+        .detalle-table thead th {
+            background: var(--tb-azul-oscuro);
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .detalle-table tbody tr:nth-child(odd) {
+            background-color: var(--tb-gris-claro);
+        }
+
+        .total-final {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--tb-rojo-claro); /* Destacar el total en rojo */
+        }
+    </style>
+</head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header('pedidos')}"></header>
+
+    <main class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mx-title h3 mb-0" style="color:var(--tb-azul-oscuro)">
+                Detalle del Pedido #<span th:text="${pedido.id}">1001</span>
+            </h1>
+            <a th:href="@{/pedido/lista}" class="btn btn-primary">
+    ← Volver a la Lista
+</a>
+        </div>
+        
+        <div th:if="${msg}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${msg}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+
+        <div class="row mb-5" th:object="${pedido}">
+            
+            <div class="col-md-4 mb-3">
+                <div class="summary-block">
+                    <div class="summary-title">Cliente</div>
+                    <div class="summary-value" th:text="*{cliente.nombre} + ' ' + *{cliente.apellidos}">Nombre Cliente</div>
+                    <small class="text-muted" th:text="*{cliente.email}">correo@ejemplo.com</small>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <div class="summary-block">
+                    <div class="summary-title">Fecha del Pedido</div>
+                    <div class="summary-value" th:text="*{fecha}">AAAA-MM-DD</div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <div class="summary-block">
+                    <div class="summary-title">Total Pagado</div>
+                    <div class="total-final" th:text="'$' + ${#numbers.formatDecimal(pedido.total, 0, 'COMMA', 2, 'POINT')}">$ 0.00</div>
+                </div>
+            </div>
+
+        </div>
+
+        <h3 class="mt-4 mb-3" style="color:var(--tb-azul-oscuro); border-bottom: 1px solid #eee;">Productos Incluidos</h3>
+        
+        <div class="table-responsive">
+            <table class="table table-bordered detalle-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(pedido.detalles)}">
+                        <td colspan="5" class="text-center text-muted py-3">Este pedido no tiene productos registrados.</td>
+                    </tr>
+                    
+                    <tr th:each="detalle, stat : ${pedido.detalles}" th:if="${detalle.producto != null}">
+                        <td th:text="${stat.index + 1}">1</td>
+                        <td th:text="${detalle.producto.nombre}">Nombre del Producto</td>
+                        <td th:text="${detalle.cantidad}">1</td>
+                        <td th:text="'$' + ${#numbers.formatDecimal(detalle.precioUnitario, 0, 'COMMA', 2, 'POINT')}">$ 0.00</td>
+                        <td class="text-end" th:text="'$' + ${#numbers.formatDecimal(detalle.subtotal, 0, 'COMMA', 2, 'POINT')}">$ 0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+            <a th:href="@{/pedido/ticket/{id}(id=${pedido.id})}" target="_blank" class="btn btn-info me-2" style="color: white;">
+                <i class="bi bi-file-earmark-pdf"></i> Descargar Ticket PDF
+            </a>
+            
+            <a th:href="@{/pedido/editar/{id}(id=${pedido.id})}" class="btn btn-warning me-2">Modificar Pedido</a>
+            <form th:action="@{/pedido/eliminar/{id}(id=${pedido.id})}" method="post" class="d-inline"
+                  th:onsubmit="|return confirm('¿Eliminar el pedido #${pedido.id}?');|">
+                <button type="submit" class="btn btn-danger">Eliminar Pedido</button>
+            </form>
+        </div>
+
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        
+        // El Controller pasa 'generarTicket' como un Flash Attribute si el origen es 'guardar-y-generar'
+        const generarTicket = /*[[${generarTicket}]]*/ false;
+        
+        // El ID del pedido está disponible en el modelo
+        const pedidoId = /*[[${pedido.id}]]*/ null; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (generarTicket && pedidoId) {
+                
+                // Construimos la URL que el PdfConfig está escuchando
+                const ticketUrl = `/pedido/ticket/${pedidoId}`;
+                
+                // Abrimos la URL del PDF en una nueva ventana/pestaña, forzando la descarga.
+                // El navegador mantendrá la vista actual (detallePedido.html) cargada.
+                window.open(ticketUrl, '_blank');
+            }
+        });
+        /*]]>*/
+    </script>
+</body>
+</html>

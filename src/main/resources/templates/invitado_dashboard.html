@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Cliente - THE BEEF</title>
+  
+  <head th:replace="~{fragments/layout :: head('Cliente')}"></head>
+
+  <style>
+    /* Variables del tema THE BEEF ya están en el layout */
+    :root {
+        --tb-azul-oscuro: #003366;
+        --tb-azul-claro: #007bff;
+        --tb-blanco: #ffffff;
+        --tb-gris-claro: #f8f9fa;
+        --tb-gris-fuerte: #343a40;
+        --tb-separador: #dee2e6;
+    }
+    
+    .dashboard-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid var(--tb-separador, #dee2e6);
+        border-radius: 10px;
+        background: var(--tb-blanco, #ffffff);
+        text-align: center;
+        padding: 1.5rem;
+        text-decoration: none;
+        color: var(--tb-gris-fuerte, #343a40);
+        display: block;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 51, 102, 0.1); 
+        color: var(--tb-azul-oscuro, #003366);
+    }
+    .card-icon { 
+        font-size: 3rem; 
+        margin-bottom: 0.5rem; 
+        color: var(--tb-azul-claro, #007bff); 
+    }
+    .card-title { 
+        font-weight: 700; 
+        font-size: 1.25rem; 
+    }
+    .main-title { 
+        color: var(--tb-azul-oscuro, #003366); 
+        font-weight: 800; 
+        margin-bottom: 3rem; 
+        text-align: center; 
+    }
+
+  </style>
+</head>
+<body>
+
+  <header th:replace="~{fragments/layout :: header('guest')}"></header>
+
+  <main class="container py-5">
+    
+    <h1 class="main-title">Bienvenido, Cliente (THE BEEF)</h1>
+    
+    <div class="row g-4 justify-content-center">
+        
+        <div class="col-12 col-md-4">
+            <a th:href="@{/pedido/nuevo}" class="dashboard-card">
+                <i class="bi bi-bag-plus-fill card-icon"></i>
+                <div class="card-title">Hacer Pedido</div>
+                <p class="text-muted small mb-0">Comienza una nueva orden de comida.</p>
+            </a>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <a th:href="@{/reservaciones/nuevo}" class="dashboard-card">
+                <i class="bi bi-calendar-check-fill card-icon"></i>
+                <div class="card-title">Nueva Reservación</div>
+                <p class="text-muted small mb-0">Reserva una mesa para tu visita.</p>
+            </a>
+        </div>
+        
+        <div class="col-12 col-md-4">
+            <a th:href="@{/invitado/reservaciones}" class="dashboard-card">
+                <i class="bi bi-journal-text card-icon"></i>
+                <div class="card-title">Mis Reservaciones</div>
+                <p class="text-muted small mb-0">Consulta tus reservas existentes.</p>
+            </a>
+        </div>
+        
+    </div>
+    
+  </main>
+
+  <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

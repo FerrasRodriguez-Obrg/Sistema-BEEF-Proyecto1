@@ -1,0 +1,103 @@
+<!-- src/main/resources/templates/usuario/formUsuario.html -->
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <head th:replace="~{fragments/layout :: head('Nuevo/Editar Usuario')}"></head>
+    
+    <style>
+        .form-container { 
+            background: var(--tb-blanco); 
+            border-radius: 10px; 
+            padding: 40px; 
+            max-width: 700px; 
+            margin: 3rem auto; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            border-top: 5px solid var(--tb-azul-oscuro); 
+        }
+        .btn-guardar { background: var(--tb-azul-claro); color: white; }
+        h2 { color: var(--tb-azul-oscuro); font-weight: 700; }
+        label { font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('admin')}"></header>
+
+<main class="container">
+    <div class="form-container">
+        <!-- 🛑 CORRECCIÓN 1: Usamos 'usuario' (singular) aquí para el título -->
+        <h2 class="text-center" th:text="${usuario.id != null ? 'EDITAR USUARIO #' + usuario.id : 'NUEVO USUARIO'}">Nuevo Usuario</h2>
+        
+        <!-- 🛑 CORRECCIÓN 2: El 'th:object' debe ser "usuario" (singular) -->
+        <form th:action="@{/usuarios/guardar}" method="post" th:object="${usuario}">
+            
+            <input type="hidden" th:field="*{id}" /> 
+            <input type="hidden" th:field="*{fechaRegistro}" th:if="*{fechaRegistro != null}" />
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="username" class="form-label">Nombre de Usuario *</label>
+                    <input type="text" class="form-control" th:field="*{username}" id="username" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nombre" class="form-label">Nombre Completo *</label>
+                    <input type="text" class="form-control" th:field="*{nombre}" id="nombre" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="email" class="form-label">Email *</label>
+                    <input type="email" class="form-control" th:field="*{email}" id="email" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="password" class="form-label" th:text="*{id != null ? 'Contraseña (Dejar vacío para no cambiar)' : 'Contraseña *'}">Contraseña *</label>
+                    <input type="password" class="form-control" th:field="*{password}" id="password" th:required="*{id == null}">
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <label for="estatus" class="form-label">Estatus (Activo/Inactivo)</label>
+                    <select class="form-select" th:field="*{estatus}" id="estatus" required>
+                        <option th:value="true" th:text="Activo"></option>
+                        <option th:value="false" th:text="Inactivo"></option>
+                    </select>
+                </div>
+            </div>
+
+            <h4 class="mt-4 mb-3" style="color: var(--tb-azul-oscuro);">Asignación de Roles (Perfiles)</h4>
+
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <label class="form-label">Perfiles Disponibles:</label>
+                    
+                    <div class="form-check" th:each="perfil : ${perfilesDisponibles}">
+                        <!-- 🛑 CORRECCIÓN 3: Usamos 'th:field="*{perfiles}"' para el binding ManyToMany -->
+                        <input class="form-check-input" type="checkbox" 
+                               th:value="${perfil.id}" 
+                               th:id="'perfil' + ${perfil.id}" 
+                               th:field="*{perfiles}"> 
+                        
+                        <label class="form-check-label" th:for="'perfil' + ${perfil.id}" th:text="${perfil.perfil}">
+                            ADMINISTRADOR
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-lg btn-guardar">
+                    <i class="bi bi-person-plus-fill me-1"></i> Guardar Usuario
+                </button>
+                <a th:href="@{/usuarios/lista}" class="btn btn-lg btn-secondary">
+                    <i class="bi bi-arrow-left-circle me-1"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

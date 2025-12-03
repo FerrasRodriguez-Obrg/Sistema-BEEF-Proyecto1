@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Búsquedas Cliente — THE BEEF</title>
+
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    crossorigin="anonymous"
+  />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    /* VARIABLES THE BEEF - MINIMALISTA */
+    :root{
+      --tb-azul-oscuro:#003366; /* Verde oscuro -> Azul oscuro */
+      --tb-azul-claro:#007bff;   /* Verde claro -> Azul claro */
+      --tb-blanco:#ffffff;
+      --tb-gris-claro:#f8f9fa; /* Hueso/Fondo -> Gris muy claro */
+      --tb-gris-fuerte:#343a40; /* Texto principal */
+      
+      --texto:var(--tb-gris-fuerte);
+      --borde:#dee2e6; /* Borde sutil */
+      --sombra: 0 8px 30px rgba(0,0,0,.08);
+      --ring: 0 0 0 3px rgba(0, 123, 255, .3); /* Anillo azul */
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      color:var(--texto);
+      /* Fondo limpio */
+      background:var(--tb-gris-claro);
+      font-family: Poppins, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    }
+
+    /* App Shell */
+    .app-header{
+      /* Fondo más sutil con acento azul */
+      background: radial-gradient(1200px 400px at 20% -10%, rgba(0, 123, 255, 0.1) 0%, transparent 60%) ,
+                  linear-gradient(180deg, var(--tb-blanco), var(--tb-gris-claro));
+      border-bottom:1px solid var(--borde);
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+    .app-header .wrap{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 1.4rem;
+      display:flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .title h1{
+      font-size: clamp(1.4rem, 2vw, 1.8rem);
+      margin:0;color:var(--tb-azul-oscuro);font-weight:900;letter-spacing:.2px;
+    }
+    .title p{margin:.15rem 0 0;color:#555;}
+
+    /* Layout principal: aside filtros + main resultados */
+    .layout{
+      max-width: 1200px;
+      margin: 1.5rem auto 2.5rem;
+      padding: 0 1rem;
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 960px){
+      .layout{
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Panel filtros (aside) */
+    .panel{
+      background: var(--tb-blanco);
+      border:1px solid var(--borde);
+      border-radius:12px; /* Ligeramente más pequeños */
+      box-shadow: var(--sombra);
+      overflow:hidden;
+      position:sticky;
+      top:12px;
+    }
+    .panel-header{
+      /* Fondo azul oscuro */
+      background: var(--tb-azul-oscuro);
+      color:var(--tb-blanco);
+      padding: .9rem 1rem;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .panel-header h2{
+      margin:0;font-size:1.05rem;font-weight:700;letter-spacing:.3px;
+    }
+    .panel-body{
+      padding: .9rem;
+      display:grid;
+      gap:.75rem;
+    }
+
+    /* Acordeón con <details> para agrupar búsquedas */
+    details.group{
+      border:1px solid var(--borde);
+      border-radius:8px; /* Más pequeños */
+      overflow:hidden;
+      background:#fff;
+    }
+    summary.group-title{
+      padding:.8rem 1rem;
+      background: var(--tb-gris-claro); /* Fondo claro de acento */
+      font-weight:700;color:var(--tb-azul-oscuro); /* Título azul oscuro */
+    }
+    .caret{
+      border-right:2px solid var(--tb-azul-oscuro);border-bottom:2px solid var(--tb-azul-oscuro);
+      opacity: 1;
+    }
+    
+    .forms{ padding: .8rem; display:grid; gap:.75rem; }
+
+    /* Tarjeta de formulario */
+    .card-form{
+      border:1px dashed var(--borde);
+      border-radius:8px;
+    }
+    .card-form:hover{
+      background:#fcfcfc;
+      border-color:#e0e0e0;
+    }
+    .label{
+      font-weight:600;color:var(--tb-gris-fuerte);
+    }
+    .hint{ color:#999; }
+
+    /* Campos */
+    .input{
+      border:1px solid #d9d9d9;
+      border-radius:8px;
+    }
+    .input:focus{
+      border-color: var(--tb-azul-claro);
+      box-shadow: var(--ring);
+    }
+
+    /* Botón */
+    .btn{
+      font-weight:700;
+      background: var(--tb-azul-claro); /* Botón azul claro */
+      color:var(--tb-blanco);
+      letter-spacing:.5px;
+    }
+    .btn:hover{ filter: brightness(1.05); transform: translateY(-1px); }
+    .btn:active{ transform: none; }
+
+    /* Área resultados (main) */
+    .results{
+      background: var(--tb-blanco);
+      border:1px solid var(--borde);
+      border-radius:12px;
+      box-shadow: var(--sombra);
+    }
+    .results-header{
+      padding: .9rem 1rem;
+      background: var(--tb-gris-claro); /* Fondo de encabezado sutil */
+      border-bottom:1px solid var(--borde);
+    }
+    .results-header h3{color:var(--tb-azul-oscuro);font-weight:700}
+    .badge-count{
+      /* Contador en azul oscuro */
+      background: rgba(0,51,102,.1); border:1px solid rgba(0,51,102,.3);
+      color:var(--tb-azul-oscuro); font-weight:800; 
+    }
+
+    /* Tabla */
+    thead th{
+      background: var(--tb-azul-oscuro); /* Encabezado de tabla azul oscuro */
+      color: var(--tb-blanco);
+    }
+    tbody tr:nth-child(even) td{ background:#f5f7f9; } /* Color de fila par más claro */
+
+    .muted{ color:#999; }
+
+    /* Chip Destacado */
+    .chip{
+      /* Chip en color verde para destacar el estado (color lógico, no de la marca) */
+      background: rgba(40, 167, 69, .15); 
+      color: #1f572c; 
+      border:1px solid rgba(40, 167, 69, .3);
+    }
+    .chip-dot{ background: #28a745; opacity: 1; }
+  </style>
+</head>
+
+
+
+<body>
+  <div class="app-header">
+    <div class="wrap">
+      <div class="title">
+        <h1>Búsquedas de Cliente</h1>
+        <p>Filtra por nombre, correo, crédito, destacados y más</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="panel">
+      <div class="panel-header">
+        <h2>Filtros</h2>
+        <span class="badge-count">11 opciones</span>
+      </div>
+      <div class="panel-body">
+        <details class="group" id="grp-nombre"
+                 th:attr="open=${seccion}=='nombre' ? 'open' : null">
+          <summary class="group-title">Por nombre <span class="caret"></span></summary>
+          <div class="forms">
+
+            <form class="card-form" th:action="@{/busquedas/por-nombre}" method="get">
+              <div class="label">Nombre exacto</div>
+              <input class="input" type="text" name="nombre" placeholder="Ej. Juan"
+                     th:value="${param.nombre}" required />
+              <button class="btn" type="submit">Buscar</button>
+            </form>
+
+            <form class="card-form" th:action="@{/busquedas/nombre-contiene}" method="get">
+              <div class="label">El nombre contiene</div>
+              <input class="input" type="text" name="q" placeholder="Ej. a, an, ju"
+                     th:value="${param.q}" required />
+              <p class="hint">Coincidencia parcial (contiene).</p>
+              <button class="btn" type="submit">Buscar</button>
+            </form>
+
+            <form class="card-form" th:action="@{/busquedas/nombre-y-credito}" method="get">
+              <div class="label">Nombre contiene &amp; crédito mínimo</div>
+              <div class="row-2">
+                <input class="input" type="text" name="nombre" placeholder="Ej. ju"
+                       th:value="${param.nombre}" required />
+                <input class="input" type="number" step="0.01" name="minimo" placeholder="Ej. 500.00"
+                       th:value="${param.minimo}" required />
+              </div>
+              <button class="btn" type="submit">Buscar</button>
+            </form>
+
+          </div>
+        </details>
+
+        <details class="group" id="grp-email"
+                 th:attr="open=${seccion}=='email' ? 'open' : null">
+          <summary class="group-title">Por email <span class="caret"></span></summary>
+          <div class="forms">
+
+            <form class="card-form" th:action="@{/busquedas/email-exacto}" method="get">
+              <div class="label">Email exacto</div>
+              <input class="input" type="email" name="email" placeholder="ejemplo@correo.com"
+                     th:value="${param.email}" required />
+              <button class="btn" type="submit">Buscar</button>
+            </form>
+
+            <form class="card-form" th:action="@{/busquedas/email-termina}" method="get">
+              <div class="label">Email termina con</div>
+              <input class="input" type="text" name="suffix" value="@gmail.com"
+                     th:value="${param.suffix}" />
+              <p class="hint">Puedes cambiar el dominio (ej. @empresa.mx).</p>
+              <button class="btn" type="submit">Buscar</button>
+            </form>
+
+          </div>
+        </details>
+
+        <details class="group" id="grp-credito"
+                 th:attr="open=${seccion}=='credito' ? 'open' : null">
+          <summary class="group-title">Por crédito <span class="caret"></span></summary>
+          <div class="forms">
+
+            <form class="card-form" th:action="@{/busquedas/credito-entre}" method="get">
+              <div class="label">Crédito entre</div>
+              <div class="row-2">
+                <input class="input" type="number" step="0.01" name="desde" placeholder="Desde"
+                       th:value="${param.desde}" required />
+                <input class="input" type="number" step="0.01" name="hasta" placeholder="Hasta"
+                       th:value="${param.hasta}" required />
+              </div>
+              <button class="btn" type="submit">Buscar</button>
+            </form>
+
+            <form class="card-form" th:action="@{/busquedas/credito-mayor}" method="get">
+              <div class="label">Crédito mayor o igual a</div>
+              <input class="input" type="number" step="0.01" name="minimo" placeholder="Ej. 1000.00"
+                     th:value="${param.minimo}" required />
+              <button class="btn" type="submit">Buscar</button>
+            </form>
+
+            <form class="card-form" th:action="@{/busquedas/top5-credito}" method="get">
+              <div class="label">Top 5 por crédito</div>
+              <button class="btn" type="submit">Buscar</button>
+            </form>
+
+          </div>
+        </details>
+
+        <details class="group" id="grp-extras"
+                 th:attr="open=${seccion}=='extras' ? 'open' : null">
+          <summary class="group-title">Destacados y foto <span class="caret"></span></summary>
+          <div class="forms">
+            <form class="card-form" th:action="@{/busquedas/destacados}" method="get">
+              <div class="label">Solo destacados</div>
+              <button class="btn" type="submit">Buscar</button>
+            </form>
+
+            <form class="card-form" th:action="@{/busquedas/destacados-credito}" method="get">
+              <div class="label">Destacados con crédito mínimo</div>
+              <input class="input" type="number" step="0.01" name="minimo" placeholder="Ej. 800.00"
+                     th:value="${param.minimo}" required />
+              <button class="btn" type="submit">Buscar</button>
+            </form>
+
+            <form class="card-form" th:action="@{/busquedas/foto-igual}" method="get">
+              <div class="label">Foto igual a</div>
+              <input class="input" type="text" name="file" value="no_imagen.jpg"
+                     th:value="${param.file}" />
+              <button class="btn" type="submit">Buscar</button>
+            </form>
+          </div>
+        </details>
+      </div>
+    </aside>
+
+    <main class="results">
+      <div class="results-header">
+        <h3>Resultados</h3>
+        <span class="badge-count" th:if="${lista != null}">
+          <span th:text="${#lists.size(lista)}"></span> encontrados
+        </span>
+      </div>
+
+      <div class="results-body">
+        <section th:if="${resultadoUnico != null}">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Apellidos</th>
+                  <th>Email</th>
+                  <th>Crédito</th>
+                  <th>Destacado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span th:text="${resultadoUnico.id}"></span></td>
+                  <td><span th:text="${resultadoUnico.nombre}"></span></td>
+                  <td><span th:text="${resultadoUnico.apellidos}"></span></td>
+                  <td><span th:text="${resultadoUnico.email}"></span></td>
+                  <td><span th:text="${resultadoUnico.credito}"></span></td>
+                  <td>
+                    <span
+                      th:if="${
+                        (resultadoUnico.destacado instanceof T(java.lang.Boolean) and resultadoUnico.destacado) or
+                        (resultadoUnico.destacado instanceof T(java.lang.Number)  and resultadoUnico.destacado > 0)
+                      }"
+                      class="chip"><span class="chip-dot"></span>Destacado</span>
+                    <span
+                      th:if="${
+                        (resultadoUnico.destacado instanceof T(java.lang.Boolean) and !resultadoUnico.destacado) or
+                        (resultadoUnico.destacado instanceof T(java.lang.Number)  and resultadoUnico.destacado <= 0)
+                      }">No</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section th:if="${lista != null}">
+          <div th:if="${#lists.isEmpty(lista)}" class="muted">Sin resultados.</div>
+
+          <div class="table-wrap" th:if="${!#lists.isEmpty(lista)}">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Apellidos</th>
+                  <th>Email</th>
+                  <th>Crédito</th>
+                  <th>Destacado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="c : ${lista}">
+                  <td th:text="${c.id}"></td>
+                  <td th:text="${c.nombre}"></td>
+                  <td th:text="${c.apellidos}"></td>
+                  <td th:text="${c.email}"></td>
+                  <td th:text="${c.credito}"></td>
+                  <td>
+                    <span
+                      th:if="${
+                        (c.destacado instanceof T(java.lang.Boolean) and c.destacado) or
+                        (c.destacado instanceof T(java.lang.Number)  and c.destacado > 0)
+                      }"
+                      class="chip"><span class="chip-dot"></span>Destacado</span>
+                    <span
+                      th:if="${
+                        (c.destacado instanceof T(java.lang.Boolean) and !c.destacado) or
+                        (c.destacado instanceof T(java.lang.Number)  and c.destacado <= 0)
+                      }">No</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

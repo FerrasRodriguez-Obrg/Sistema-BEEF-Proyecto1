@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lista de Productos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+
+  <style>
+    /* VARIABLES THE BEEF - MINIMALISTA */
+    :root{
+      --tb-azul-oscuro: #003366; 
+      --tb-azul-claro: #007bff;   
+      --tb-blanco: #ffffff;
+      --tb-gris-claro: #f8f9fa; /* Fondo general sutil */
+      --tb-gris-fuerte: #343a40; /* Texto principal */
+      --tb-separador: #dee2e6;
+      --tb-red-light: #dc3545;
+    }
+
+    body{
+      background: var(--tb-gris-claro); 
+      font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    .titulo{
+      font-family: Poppins, sans-serif;
+      font-weight: 700;
+      text-align: center;
+      margin: 1.5rem 0 0.5rem;
+      color: var(--tb-azul-oscuro);
+      letter-spacing:.5px;
+      font-size: 2rem;
+    }
+    .subtitulo{ text-align:center; color:var(--tb-gris-fuerte); margin-bottom:2rem; opacity:0.7; }
+
+    /* Estilo del ÍTEM DE LISTA (similar al card-mx anterior) */
+    .list-item-mx{
+      border: 1px solid var(--tb-separador);
+      border-radius: 10px; 
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 4px 15px rgba(0,0,0,.08);
+      transition: box-shadow .2s ease, transform .2s ease;
+      border-left: 4px solid var(--tb-azul-oscuro); /* Acento azul vertical */
+      margin-bottom: 1.5rem; /* Espacio entre elementos de la lista */
+    }
+    .list-item-mx:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,.15);
+    }
+    
+    /* Etiqueta de tipo de producto */
+    .badge-tipo{
+      background: var(--tb-azul-oscuro);
+      color:white; font-weight:600; font-size:.7rem;
+      padding: .3rem .6rem;
+      border-radius: 4px;
+    }
+    
+    /* Chip de Precio */
+    .precio-chip{
+      background: var(--tb-azul-claro); /* Azul como acento principal */
+      color: #fff; padding:.3rem .7rem; border-radius:6px; /* Sutil */
+      font-weight:700; letter-spacing:.3px;
+      font-size: 1rem;
+    }
+    
+    /* Botones de acción (Editar/Eliminar) - Mismo estilo */
+    .btn-mx, .btn-mx-edit, .btn-mx-delete{
+      font-weight:600;
+      border-radius: 6px;
+      padding: .35rem .7rem;
+      border: none;
+      font-size: 0.85rem; /* Un poco más pequeño para la lista */
+    }
+    .btn-mx{ /* Detalles */
+      border:1px solid var(--tb-azul-claro); 
+      color:var(--tb-azul-claro); 
+      background: transparent;
+    }
+    .btn-mx:hover{ background: var(--tb-azul-claro); color:white; }
+
+    .btn-mx-edit{
+      background: #ffc107; /* Amarillo de Bootstrap */
+      color: var(--tb-gris-fuerte);
+    }
+    .btn-mx-edit:hover{ background: #e0a800; color:#fff; }
+    
+    .btn-mx-delete{
+      background: #dc3545; /* Rojo de Bootstrap */
+      color:#fff;
+    }
+    .btn-mx-delete:hover{ background: #c82333; }
+
+    /* Botón Volver (Ahora usado como "Agregar" y reposicionado) */
+    .btn-volver{
+      background:var(--tb-azul-claro); 
+      color:var(--tb-blanco); 
+      font-weight:600;
+      border-radius: 6px;
+      padding: .6rem 1.2rem;
+      border: 1px solid var(--tb-azul-claro);
+    }
+    .btn-volver:hover{ background:#0056b3; color:#fff; }
+
+    /* Estilo del contenedor de filtros y botón */
+    .controls-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap; /* Para que se adapte en móvil */
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px){
+        .controls-container {
+            justify-content: center;
+            gap: 1rem;
+        }
+    }
+    @media (max-width: 575px){
+      .actions-mx{ gap:.35rem; flex-wrap:wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('productos')}"></header>
+
+  <div class="container py-3">
+    
+    <h2 class="titulo">Lista de Productos</h2>
+    <p class="subtitulo">Administración de productos y precios.</p>
+    
+    <!-- CONTENEDOR NUEVO: BOTÓN A LA IZQUIERDA, FILTROS A LA DERECHA -->
+    <div class="controls-container mx-auto" style="max-width: 900px;">
+        <!-- Botón AGREGAR (MOVIMIENTO CLAVE) -->
+        <a class="btn btn-volver" th:href="@{/producto/crear}">
+            <i class="bi bi-plus-circle me-1"></i> Agregar Nuevo Producto
+        </a>
+
+        <!-- Contenedor de Filtros -->
+        <form th:action="@{/listaproductos}" method="get" class="d-flex align-items-center gap-2">
+            <label for="filtroTipo" class="mb-0 text-muted">Filtrar por Tipo:</label>
+            <select name="tipo" id="filtroTipo" class="form-select form-select-sm" onchange="this.form.submit()" style="width: 150px;">
+                <option value="" th:selected="${param_tipo == null or param_tipo == ''}">Mostrar Todos</option>
+                
+                <option value="Platillo" th:selected="${param_tipo == 'Platillo'}">Platillo</option>
+                <option value="Bebida" th:selected="${param_tipo == 'Bebida'}">Bebida</option>
+                <option value="Postre" th:selected="${param_tipo == 'Postre'}">Postre</option>
+            </select>
+            <a th:if="${param_tipo != null && param_tipo != ''}" th:href="@{/listaproductos}" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+        </form>
+    </div>
+    <!-- FIN DEL CONTENEDOR DE CONTROLES -->
+
+    <div th:if="${#lists.isEmpty(listaProducto)}" class="alert alert-info mx-auto" style="max-width:820px;">
+      No hay productos para mostrar.
+    </div>
+
+    <ul class="list-group list-group-flush mx-auto" style="max-width: 900px;" th:if="${!#lists.isEmpty(listaProducto)}">
+        <li class="list-group-item list-item-mx p-3" th:each="prod : ${listaProducto}">
+            <div class="d-flex align-items-center">
+                
+                <div class="flex-shrink-0 me-3" style="width: 80px; height: 80px; overflow: hidden; border-radius: 8px;">
+                    <img class="w-100 h-100"
+                         th:src="@{/producto-img/{f}(f=${prod.fotoproducto})}"
+                         th:alt="${#strings.isEmpty(prod.nombre) ? 'Producto' : prod.nombre}"
+                         style="object-fit: cover;"
+                         onerror="this.onerror=null;this.src='/imagenes/producto/no.jpg';" />
+                </div>
+
+                <div class="flex-grow-1 me-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h5 class="mb-0" th:text="${prod.nombre}" style="font-weight: 600; font-size: 1.1rem; color: var(--tb-azul-oscuro);">Nombre del producto</h5>
+                        <span class="badge badge-tipo" th:text="${prod.tipo}">Tipo</span>
+                    </div>
+                    <p class="text-muted mb-1" style="font-size: 0.9rem;" th:text="${prod.descripcion} ?: 'Sin descripción.'">Descripción del producto.</p>
+                    <span class="precio-chip" th:text="'$ ' + ${#numbers.formatDecimal(prod.precio, 0, 'COMMA', 2, 'POINT')} + ' MXN'">$ 0.00 MXN</span>
+                </div>
+
+                <div class="flex-shrink-0 d-flex gap-2 actions-mx">
+                    <a class="btn btn-sm btn-mx" th:href="@{/producto/ver/{id}(id=${prod.id})}">Detalles</a>
+                    <a class="btn btn-sm btn-mx-edit" th:href="@{/producto/editar/{id}(id=${prod.id})}" title="Editar">Editar</a>
+                    <form th:action="@{/producto/eliminar/{id}(id=${prod.id})}" method="post" class="d-inline"
+                          onsubmit="return confirm('¿Seguro que deseas eliminar el producto «' + /*[[${prod.nombre}]]*/'' + '»?');">
+                      <button type="submit" class="btn btn-sm btn-mx-delete">Eliminar</button>
+                    </form>
+                </div>
+
+            </div>
+        </li>
+    </ul>
+    
+    <!-- Se eliminó el botón de aquí abajo -->
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

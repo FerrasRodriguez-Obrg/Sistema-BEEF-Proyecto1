@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${reservacion.id != null ? 'Editar Reserva #' + reservacion.id : 'Nueva Reservación'}">Formulario de Reservación</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <style>
+        :root{ --tb-azul-oscuro:#003366; --tb-azul-claro:#007bff; --tb-blanco:#ffffff; --tb-gris-claro:#f8f9fa; --tb-gris-fuerte:#343a40; }
+        body{ font-family:Poppins, sans-serif; background:var(--tb-gris-claro); color: var(--tb-gris-fuerte); }
+        
+        .form-container { 
+            background: var(--tb-blanco); 
+            border-radius: 10px; 
+            padding: 40px; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            border-top: 5px solid var(--tb-azul-claro); 
+        }
+        .form-title { color: var(--tb-azul-oscuro); font-weight: 700; margin-bottom: 1.5rem; }
+        .btn-guardar { background: var(--tb-azul-claro); color: var(--tb-blanco); font-weight: 600; }
+        .btn-guardar:hover { background: #0056b3; }
+        .btn-regresar { background: #6c757d; color: white; font-weight: 600; }
+
+        label { font-weight: 600; }
+    </style>
+</head>
+
+<body>
+    
+    <header style="background: white; padding: 10px; border-bottom: 1px solid #eee;">
+        <div class="container">
+            <h1 style="font-size: 1.5rem; color: var(--tb-azul-oscuro);">THE BEEF / RESERVACIONES</h1>
+        </div>
+    </header>
+
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-12"> 
+                
+                <div class="form-container">
+                    <h2 class="form-title text-center" 
+                        th:text="${reservacion.id != null ? 'EDITAR RESERVA #' + reservacion.id : 'NUEVA RESERVACIÓN'}">
+                        Formulario de Reserva
+                    </h2>
+
+                    <form th:action="@{/reservaciones/save}" method="post" th:object="${reservacion}">
+                        
+                        <input type="hidden" th:field="*{id}" /> 
+                        <input type="hidden" th:field="*{estado}" /> 
+                        <input type="hidden" th:field="*{empleadoAsignado.id}" th:if="${reservacion.empleadoAsignado != null and reservacion.empleadoAsignado.id != null}" />
+
+
+                        <div th:if="${reservacion.estado == 'CONFIRMADA'}" class="alert alert-success">
+                            Esta reserva ya fue **CONFIRMADA** y tiene un pedido asociado. Solo se permite editar datos de contacto.
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label for="fechaCita">Fecha de Cita</label>
+                                <input type="date" class="form-control" th:field="*{fechaCita}" id="fechaCita" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="horaCita">Hora de Cita</label>
+                                <input type="time" class="form-control" th:field="*{horaCita}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="numPersonas">No. Personas</label>
+                                <input type="number" class="form-control" th:field="*{numPersonas}" min="1" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cliente">Cliente</label>
+                                <select class="form-select" th:field="*{cliente.id}" required>
+                                    <option value="">Selecciona Cliente</option>
+                                    <option th:each="c : ${clientes}" 
+                                            th:value="${c.id}" 
+                                            th:text="${c.nombre} + ' ' + ${c.apellidos}">Cliente</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h4 class="mt-4 mb-3" style="color: var(--tb-azul-oscuro);">Asignación de Recursos</h4>
+                        <div class="row mb-4">
+                            <div class="col-md-12 mb-3">
+                                <label for="mesaAsignada">Mesa</label>
+                                <select class="form-select" th:field="*{mesaAsignada.idMesa}" required>
+                                    <option value="">Selecciona Mesa</option>
+                                    <option th:each="m : ${mesas}" 
+                                            th:value="${m.idMesa}" 
+                                            th:text="'Mesa #' + ${m.idMesa} + ' (Cap. ' + ${m.capacidad} + ')'">Mesa 1 (Cap. 4)</option>
+                                </select>
+                            </div>
+                            </div>
+                        
+                        <hr/>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <button type="submit" class="btn btn-lg btn-guardar">
+                                <i class="bi bi-save me-1"></i> Guardar Reservación
+                            </button>
+                            <a th:href="@{/reservaciones/index}" class="btn btn-lg btn-regresar">
+                                <i class="bi bi-arrow-left-circle me-1"></i> Regresar a la Lista
+                            </a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer style="padding: 20px; text-align: center; color: gray; margin-top: 50px;">
+        © 2025 THE BEEF
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        
+        // 🛑 FUNCIÓN PARA RESTRINGIR LA FECHA AL DÍA ACTUAL O FUTURO
+        function setMinDateToday() {
+            const today = new Date();
+            const year = today.getFullYear();
+            // Formatear mes y día a dos dígitos (ej: 01, 12)
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            
+            // Formato YYYY-MM-DD
+            const todayFormatted = `${year}-${month}-${day}`;
+            
+            const fechaInput = document.getElementById('fechaCita');
+            
+            if (fechaInput) {
+                // 1. Establece la fecha mínima al día de hoy.
+                fechaInput.min = todayFormatted; 
+
+                // 2. Si el campo está vacío (ej: nueva reserva), inicializarlo a la fecha de hoy.
+                if (!fechaInput.value) {
+                    fechaInput.value = todayFormatted;
+                }
+            }
+        }
+        
+        // Llamar a la función al cargar el DOM
+        document.addEventListener('DOMContentLoaded', setMinDateToday);
+        
+        /*]]>*/
+    </script>
+</body>
+</html>

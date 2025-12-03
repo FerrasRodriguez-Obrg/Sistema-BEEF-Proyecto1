@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <head th:replace="~{fragments/layout :: head('Nuevo/Editar Perfil')}"></head>
+    
+    <style>
+        .form-container { 
+            background: var(--tb-blanco); 
+            border-radius: 10px; 
+            padding: 30px; 
+            max-width: 500px; 
+            margin: 3rem auto; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            border-top: 5px solid var(--tb-azul-oscuro); 
+        }
+        .btn-guardar { background: var(--tb-azul-claro); color: white; }
+        h2 { color: var(--tb-azul-oscuro); font-weight: 700; }
+    </style>
+</head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('admin')}"></header>
+
+<main class="container">
+    <div class="form-container">
+        <h2 class="text-center" th:text="${perfil.id != null ? 'EDITAR PERFIL #' + perfil.id : 'NUEVO PERFIL'}">Nuevo Perfil</h2>
+
+        <form th:action="@{/perfiles/guardar}" method="post" th:object="${perfil}">
+            
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="mb-3">
+                <label for="perfil" class="form-label">Nombre del Perfil (Rol) *</label>
+                <input type="text" class="form-control" th:field="*{perfil}" id="perfil" required 
+                       placeholder="Ej: ADMINISTRADOR, MESERO">
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-lg btn-guardar">
+                    <i class="bi bi-save me-1"></i> Guardar Perfil
+                </button>
+                <a th:href="@{/perfiles/lista}" class="btn btn-lg btn-secondary">
+                    <i class="bi bi-arrow-left-circle me-1"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

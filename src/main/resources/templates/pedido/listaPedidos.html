@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Pedidos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <head th:replace="~{fragments/layout :: head('Pedidos')}"></head>
+
+  <style>
+    /* VARIABLES THE BEEF - MINIMALISTA */
+    :root{
+      --tb-azul-oscuro: #003366; 
+      --tb-azul-claro: #007bff;   
+      --tb-blanco: #ffffff;
+      --tb-gris-claro: #f8f9fa; 
+      --tb-gris-fuerte: #343a40; 
+      --tb-separador: #dee2e6;
+      --tb-rojo-claro: #dc3545;
+      --tb-rojo-oscuro: #c82333;
+    }
+
+    body{ 
+        background: var(--tb-gris-claro); 
+        font-family: 'Poppins', sans-serif; 
+    }
+
+    .mx-hero{ display: none; } 
+    
+    .btn-tb{ 
+        background: var(--tb-azul-claro); 
+        color:#fff; 
+        border:none; 
+        box-shadow: 0 4px 10px rgba(0,123,255,.2); 
+        border-radius:6px; 
+        font-weight:600;
+        transition: background .2s ease, box-shadow .2s ease;
+    }
+    .btn-tb:hover{ background: #0056b3; color:#fff; }
+    
+    .btn-regreso-rojo{
+        background: var(--tb-rojo-claro);
+        color: var(--tb-blanco);
+        border: 1px solid var(--tb-rojo-claro);
+        font-weight: 600; 
+        border-radius: 6px; 
+        padding: .6rem 1.2rem;
+        transition: background .2s ease;
+    }
+    .btn-regreso-rojo:hover{
+        background: var(--tb-rojo-oscuro);
+    }
+    
+    .card.mx-card{ 
+        border:1px solid var(--tb-separador); 
+        border-top:4px solid var(--tb-azul-oscuro); 
+        border-radius:10px; 
+        overflow:hidden; 
+        box-shadow: 0 8px 20px rgba(0,0,0,.08); 
+        background:#fff; 
+    }
+    
+    .mx-card .table thead th{ 
+        background: var(--tb-azul-oscuro); 
+        color:#fff; 
+        border:0; 
+        text-transform:uppercase; 
+        letter-spacing:.5px; 
+        font-weight:600;
+        font-size: 0.9rem;
+    }
+    
+    .mx-card .table tbody tr:hover{ background: rgba(0,51,102,.05); } 
+    .mx-card .table td{ border-color: var(--tb-separador); }
+    .mx-card .table td:first-child { font-weight: 500; } 
+
+    .btn-icon{
+      width: 32px; height: 32px; 
+      display:inline-flex; align-items:center; justify-content:center;
+      border-radius: 6px; 
+      border:1px solid transparent; 
+      background:transparent;
+      transition: .15s ease-in-out; 
+      margin-left:.35rem;
+      color: var(--tb-gris-fuerte);
+    }
+    .btn-icon:hover { background: rgba(0,0,0,.08); }
+
+    .btn-eye{ color: var(--tb-azul-oscuro); }
+    .btn-eye:hover{ background: rgba(0,51,102,.1); } 
+    .btn-edit{ color: #ffc107; } 
+    .btn-edit:hover{ background: rgba(255,193,7,.2); }
+    .btn-del{ color: #dc3545; } 
+    .btn-del:hover{ background: rgba(220,53,69,.1); }
+  </style>
+</head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('pedidos')}"></header>
+
+<main class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mx-title h3 mb-0" style="color:var(--tb-azul-oscuro)">
+      <i class="bi bi-bag-check me-2" style="color:var(--tb-azul-claro)"></i> Lista de Pedidos
+    </h1>
+    <a class="btn btn-tb" th:href="@{/pedido/nuevo}">
+      <i class="bi bi-bag-plus me-1"></i> Nuevo pedido
+    </a>
+  </div>
+  
+  <form th:action="@{/pedido/lista}" method="get" class="mb-4 p-3 border rounded" style="background: #fff;">
+      <div class="row g-3 align-items-end">
+          
+          <div class="col-md-4">
+              <label for="fechaFiltro" class="form-label small text-muted">Filtrar por Fecha:</label>
+              <input type="date" class="form-control" id="fechaFiltro" name="fecha"
+                     th:value="${fechaFiltro}" />
+          </div>
+          
+          <div class="col-md-5">
+              <label for="clienteFiltro" class="form-label small text-muted">Filtrar por Cliente:</label>
+              <select class="form-select" id="clienteFiltro" name="idCliente">
+                  <option value="">— Mostrar Todos los Clientes —</option>
+                  <option th:each="cliente : ${listaClientes}" 
+                          th:value="${cliente.id}" 
+                          th:text="${cliente.nombre} + ' ' + ${cliente.apellidos}"
+                          th:selected="${cliente.id == idClienteFiltro}">
+                      Nombre del Cliente
+                  </option>
+              </select>
+          </div>
+          
+          <div class="col-md-3 d-flex gap-2">
+              <button type="submit" class="btn btn-primary w-100">
+                  <i class="bi bi-search me-1"></i> Buscar
+              </button>
+              <a th:href="@{/pedido/lista}" class="btn btn-outline-secondary">
+                  <i class="bi bi-x-lg"></i> Limpiar
+              </a>
+          </div>
+      </div>
+  </form>
+
+  <div class="card mx-card">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th># Pedido</th>
+            <th>Fecha</th>
+            <th class="text-end">Total</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:if="${#lists.isEmpty(pedidos)}">
+            <td colspan="5" class="text-center text-muted py-4">No hay pedidos registrados.</td>
+          </tr>
+
+          <tr th:each="p : ${pedidos}">
+            <td th:text="${p.cliente != null ? p.cliente.nombre : (p.nombreCliente != null ? p.nombreCliente : '—')}">Juan Pérez</td>
+            <td th:text="${p.id}">1001</td>
+            <td th:text="${p.fecha != null ? #temporals.format(p.fecha,'dd/MM/yyyy') : '—'}">08/10/2025</td>
+            <td class="text-end" th:text="'$' + ${p.total != null ? #numbers.formatDecimal(p.total, 0, 'COMMA', 2, 'POINT') : '—'}">$250.00</td>
+
+            <td class="text-center">
+              <a class="btn-icon btn-eye"  th:href="@{/pedido/ver/{id}(id=${p.id})}" title="Ver detalle"><i class="bi bi-eye"></i></a>
+              <a class="btn-icon btn-edit" th:href="@{/pedido/editar/{id}(id=${p.id})}" title="Editar"><i class="bi bi-pencil"></i></a>
+              <form th:action="@{/pedido/eliminar/{id}(id=${p.id})}" method="post" class="d-inline"
+                    th:onsubmit="|return confirm('¿Eliminar el pedido #${p.id}?');|">
+             
+                <button type="submit" class="btn-icon btn-del" title="Eliminar">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-center mt-4">
+    <a class="btn btn-regreso-rojo" th:href="@{/}">
+      <i class="bi bi-arrow-left-circle me-1"></i> Regresar a Inicio
+    </a>
+  </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

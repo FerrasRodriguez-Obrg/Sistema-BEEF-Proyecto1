@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nuevo Pedido</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <style>
+        :root{ --tb-azul-oscuro:#003366; --tb-azul-claro:#007bff; --tb-blanco:#ffffff; --tb-gris-claro:#f8f9fa; --tb-gris-fuerte:#343a40; --tb-separador:#dee2e6; }
+        body{ font-family:Poppins, sans-serif; background:var(--tb-gris-claro); color: var(--tb-gris-fuerte); margin: 0; }
+        
+        .form-container { background: var(--tb-blanco); border-radius: 10px; padding: 40px; max-width: 700px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 5px solid var(--tb-azul-claro); }
+        .btn-guardar { background: var(--tb-azul-claro); color: var(--tb-blanco); }
+        .detalle-table th { background: var(--tb-azul-oscuro); color: white; font-size: 0.9rem; }
+        
+        .detalle-table td, .detalle-table th { vertical-align: middle; padding: 0.5rem; }
+        .detalle-table input[type="number"], .detalle-table select, .detalle-table input[type="text"] { padding: 0.4rem; height: auto; }
+        .detalle-table .btn-danger { padding: 0.3rem 0.6rem; } 
+
+        .total-summary { font-size: 1.25rem; font-weight: 700; color: var(--tb-azul-oscuro); display: flex; justify-content: flex-end; align-items: center; }
+        #totalDisplay { font-size: 1.25rem; font-weight: 700; color: var(--tb-azul-oscuro); padding-left: 10px; border: none; }
+    </style>
+</head>
+<body>
+    
+    <header style="background: white; padding: 10px; border-bottom: 1px solid #eee;">
+        <div class="container">
+            <h1 style="font-size: 1.5rem; color: var(--tb-azul-oscuro);">THE BEEF / NUEVO PEDIDO</h1>
+        </div>
+    </header>
+
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-12"> 
+                
+                <div class="form-container">
+                    <h2 class="text-center" th:text="${pedido.id != null ? 'EDITAR PEDIDO #' + pedido.id : 'NUEVO PEDIDO'}" style="color: var(--tb-azul-oscuro);">NUEVO PEDIDO</h2>
+
+					<form th:action="@{/pedido/guardar}" method="post"
+						th:object="${pedido}">
+
+						<input type="hidden" th:field="*{id}" />
+
+						<div class="row mb-4">
+							<div class="col-md-4 mb-3">
+								<label for="fecha">Fecha</label> 
+                                <input type="date" class="form-control" th:field="*{fecha}" id="fechaPedido" required>
+							</div>
+							<div class="col-md-8 mb-3">
+								<label for="cliente">Cliente</label> <select class="form-select"
+									th:field="*{cliente.id}" required>
+									<option value="">Selecciona cliente</option>
+									<option th:each="c : ${clientes}" th:value="${c.id}"
+										th:text="${c.nombre} + ' ' + ${c.apellidos}"></option>
+								</select>
+							</div>
+						</div>
+
+						<h4 class="mt-4" style="color: var(--tb-azul-oscuro);">Detalle
+							del Producto</h4>
+						<div class="table-responsive mb-4">
+							<table class="table table-bordered detalle-table">
+								<thead>
+									<tr>
+										<th>Producto</th>
+										<th style="width: 15%;">Cantidad</th>
+										<th style="width: 20%;">Precio Unitario</th>
+										<th style="width: 20%;" class="text-end">Subtotal</th>
+										<th style="width: 5%;"></th>
+									</tr>
+								</thead>
+								<tbody id="detalle-body">
+
+									<tr id="detalle-row-0">
+										<td><input type="hidden" name="detalles[0].id" value="" />
+
+											<select class="form-select producto-select"
+											name="detalles[0].producto.id" id="producto-0" required>
+												<option value="">Selecciona un producto</option>
+												<option th:each="p : ${productos}" th:value="${p.id}"
+													th:attr="data-precio=${p.precio}" th:text="${p.nombre}"></option>
+										</select> <input type="hidden" name="detalles[0].precioUnitario"
+											class="precio-unitario" value="0.00" /></td>
+
+										<td><input type="number"
+											class="form-control cantidad-input"
+											name="detalles[0].cantidad" value="1" min="1" id="cantidad-0"
+											required /></td>
+
+										<td><input type="text"
+											class="form-control text-end precio-display" id="precio-0"
+											value="$ 0.00" disabled /></td>
+
+										<td><input type="text"
+											class="form-control text-end subtotal-display"
+											id="subtotal-0" value="$ 0.00" disabled /></td>
+										<td>
+											<button type="button"
+												class="btn btn-sm btn-danger eliminar-btn" data-index="0"
+												disabled>
+												<i class="bi bi-x-circle"></i>
+											</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+
+						<div class="d-flex justify-content-end mb-4">
+							<button type="button" class="btn btn-sm btn-success"
+								id="btn-agregar">
+								<i class="bi bi-plus-circle me-1"></i> Agregar Producto
+							</button>
+						</div>
+
+						<div
+							class="d-flex justify-content-between align-items-center mb-4">
+							<a th:href="@{/listapedidos}" class="btn btn-secondary">←
+								Regresar a la lista</a>
+
+							<div class="total-summary">
+								TOTAL: <input type="text" id="totalDisplay"
+									class="total-display" readonly value="$ 0.00" />
+							</div>
+							<input type="hidden" th:field="*{total}" id="totalHidden"
+								value="0.00" />
+						</div>
+
+						<div
+							class="d-flex justify-content-between align-items-center mt-4">
+
+							<button type="submit" formaction="/pedido/guardar-y-generar"
+								formmethod="post"
+								class="btn btn-lg btn-block btn-primary btn-guardar ms-auto">
+								<i class="bi bi-file-earmark-pdf me-2"></i> Guardar y Generar
+								PDF
+							</button>
+						</div>
+
+						<a th:if="*{id != null}"
+							th:href="@{/pedido/ticket/{id}(id=*{id})}" target="_blank"
+							class="btn btn-info" style="color: white;"> <i
+							class="bi bi-file-earmark-pdf"></i> Generar Ticket PDF
+						</a>
+					</form>
+
+				</div>
+            </div>
+        </div>
+    </main>
+
+    <footer style="padding: 20px; text-align: center; color: gray;">
+        © 2025 THE BEEF
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        
+        // 1. CARGA DE DATOS: Lista de productos (obtenida de la BD para JS)
+        const productosData = /*[[${productos}]]*/ []; 
+        let filaIndex = 0; 
+        
+        // 🛑 FUNCIÓN PARA RESTRINGIR LA FECHA AL DÍA DE HOY
+        function setTodayDateRestriction() {
+            const today = new Date();
+            const year = today.getFullYear();
+            // Formatear mes y día a dos dígitos (ej: 01, 12)
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            
+            // Formato YYYY-MM-DD (necesario para input[type="date"])
+            const todayFormatted = `${year}-${month}-${day}`;
+            
+            const fechaInput = document.getElementById('fechaPedido');
+            
+            if (fechaInput) {
+                // Establecer la fecha actual como valor y como límites (min y max)
+                fechaInput.value = todayFormatted;
+                fechaInput.min = todayFormatted; 
+                fechaInput.max = todayFormatted; 
+                
+                // Opcional: Puede deshabilitar la edición para forzar la fecha
+                // fechaInput.setAttribute('readonly', 'true'); 
+            }
+        }
+        
+        // 2. DEFINICIÓN DE FUNCIONES DE CÁLCULO (Actualizada para múltiples filas)
+
+        function actualizarPrecio(index) {
+            const row = document.getElementById('detalle-row-' + index);
+            if (!row) return;
+
+            const select = row.querySelector('.producto-select');
+            const precioUnitarioInput = row.querySelector('input[name="detalles['+index+'].precioUnitario"]');
+            const precioDisplay = row.querySelector('.precio-display');
+            
+            const selectedProductId = select.value;
+            const producto = productosData.find(p => String(p.id) === selectedProductId);
+            
+            const precio = producto ? producto.precio : 0.00;
+
+            precioUnitarioInput.value = precio.toFixed(2); 
+            precioDisplay.value = `$ ${precio.toFixed(2)}`;
+            
+            calcularTotalFila(index);
+        }
+        
+        function calcularTotalFila(index) {
+            const row = document.getElementById('detalle-row-' + index);
+            if (!row) return;
+
+            const cantidadInput = row.querySelector('.cantidad-input');
+            const precioInput = row.querySelector('input[name="detalles['+index+'].precioUnitario"]');
+            const subtotalDisplay = row.querySelector('.subtotal-display');
+            
+            const precioUnitarioValue = precioInput ? parseFloat(precioInput.value || 0) : 0;
+            const cantidad = parseFloat(cantidadInput.value || 0);
+            
+            const subtotal = cantidad * precioUnitarioValue;
+            
+            subtotalDisplay.value = `$ ${subtotal.toFixed(2)}`;
+            
+            calcularTotalGeneral();
+        }
+        
+        function calcularTotalGeneral() {
+            let total = 0.00;
+            
+            // Suma todos los subtotales de la tabla
+            document.querySelectorAll('#detalle-body .subtotal-display').forEach(input => {
+                const subtotalText = input.value.replace('$', '').trim();
+                total += parseFloat(subtotalText || 0);
+            });
+            
+            document.getElementById('totalDisplay').value = `$ ${total.toFixed(2)}`;
+            document.getElementById('totalHidden').value = total.toFixed(2);
+        }
+
+        // 3. LÓGICA DE AGREGAR Y ELIMINAR FILAS
+        
+        function agregarFilaDetalle() {
+            const tableBody = document.getElementById('detalle-body');
+            
+            // 1. Obtener el nuevo índice (el máximo actual + 1)
+            let maxIndex = -1;
+            document.querySelectorAll('#detalle-body tr').forEach(row => {
+                const rowId = row.id.split('-').pop(); // Usamos .pop() para obtener el último elemento
+                if (parseInt(rowId) > maxIndex) { maxIndex = parseInt(rowId); }
+            });
+            const newIndex = maxIndex + 1; 
+            
+            // 2. Habilitar el botón de eliminar de la fila 0
+            const filaCeroBtn = document.querySelector('#detalle-row-0 .eliminar-btn');
+            if(filaCeroBtn && filaCeroBtn.hasAttribute('disabled')) { filaCeroBtn.removeAttribute('disabled'); }
+
+            // 3. Construir opciones para el nuevo select
+            const selectOptions = productosData.map(p => 
+                `<option value="${p.id}" data-precio="${p.precio}">${p.nombre}</option>`
+            ).join('');
+
+            const newRowHtml = `
+                <tr id="detalle-row-${newIndex}">
+                    <td>
+                        <input type="hidden" name="detalles[${newIndex}].id" value="" />
+                        
+                        <select class="form-select producto-select" name="detalles[${newIndex}].producto.id" 
+                                id="producto-${newIndex}" required>
+                            <option value="">Selecciona un producto</option>
+                            ${selectOptions}
+                        </select>
+                        <input type="hidden" name="detalles[${newIndex}].precioUnitario" class="precio-unitario" value="0.00" />
+                    </td>
+                    
+                    <td>
+                        <input type="number" class="form-control cantidad-input" name="detalles[${newIndex}].cantidad" 
+                                value="1" min="1" id="cantidad-${newIndex}" required />
+                    </td>
+                    
+                    <td>
+                        <input type="text" class="form-control text-end precio-display" id="precio-${newIndex}" value="$ 0.00" disabled />
+                    </td>
+                    
+                    <td>
+                        <input type="text" class="form-control text-end subtotal-display" id="subtotal-${newIndex}" value="$ 0.00" disabled />
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-danger eliminar-btn" data-index="${newIndex}">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            
+            tableBody.insertAdjacentHTML('beforeend', newRowHtml);
+            
+            // 4. Asociar los eventos de la nueva fila
+            asociarEventosFila(document.getElementById(`detalle-row-${newIndex}`));
+        }
+
+        function eliminarFilaDetalle(boton, index) {
+            const row = document.getElementById('detalle-row-' + index);
+            
+            // Remover todos los inputs para que Spring no los procese.
+            row.querySelectorAll('input, select').forEach(element => {
+                element.removeAttribute('name');
+            });
+            
+            row.remove();
+            
+            const currentRows = document.querySelectorAll('#detalle-body tr').length;
+
+            // Si solo queda la fila 0, deshabilitamos el botón de eliminar
+            if (currentRows === 1) {
+                document.querySelector('#detalle-row-0 .eliminar-btn').setAttribute('disabled', 'true');
+            }
+            
+            calcularTotalGeneral();
+        }
+        
+        function asociarEventosFila(row) {
+            const rowIndex = row.id.split('-').pop(); // Obtiene el índice de la fila (ej: '0', '1')
+            const select = row.querySelector('.producto-select');
+            const cantidadInput = row.querySelector('.cantidad-input');
+            const eliminarBtn = row.querySelector('.eliminar-btn');
+            
+            select.addEventListener('change', () => { actualizarPrecio(rowIndex); });
+            cantidadInput.addEventListener('input', () => { calcularTotalFila(rowIndex); });
+            
+            if(eliminarBtn) {
+                 eliminarBtn.addEventListener('click', () => {
+                    eliminarFilaDetalle(eliminarBtn, rowIndex);
+                });
+            }
+        }
+        
+        // 4. ASOCIACIÓN INICIAL AL CARGAR LA PÁGINA
+        document.addEventListener('DOMContentLoaded', () => {
+             
+             // 🛑 Llamada a la función de restricción de fecha
+             setTodayDateRestriction();
+             
+             // 1. Asociar evento al botón principal de AGREGAR
+             document.getElementById('btn-agregar').addEventListener('click', agregarFilaDetalle);
+
+             // 2. Inicializa eventos en la fila base (o filas de edición)
+             const rows = document.querySelectorAll('#detalle-body tr');
+
+             rows.forEach((row) => {
+                 const rowIndex = row.id.split('-').pop(); 
+                 asociarEventosFila(row); 
+                 
+                 // Inicializar precio y total si ya hay un producto seleccionado
+                 if (row.querySelector('.producto-select').value) {
+                     actualizarPrecio(rowIndex);
+                 } 
+             });
+             
+             // 3. Deshabilitar botón de eliminar si solo hay una fila (la fila 0)
+             if (rows.length === 1) {
+                 document.querySelector('#detalle-row-0 .eliminar-btn').setAttribute('disabled', 'true');
+             }
+             
+             calcularTotalGeneral(); // Cálculo inicial (que será 0 si no hay productos)
+        });
+        
+        /*]]>*/
+    </script>
+</body>
+</html>

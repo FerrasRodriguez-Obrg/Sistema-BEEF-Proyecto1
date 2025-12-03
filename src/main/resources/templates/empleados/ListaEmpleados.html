@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <title>Lista de Empleados</title>
+    <head th:replace="~{fragments/layout :: head('Empleados')}"></head>
+</head>
+<body>
+    <header th:replace="~{fragments/layout :: header('empleados')}"></header>
+
+    <main class="container py-5">
+        <h1 style="color:var(--tb-azul-oscuro); font-weight:700;">Gestión de Personal</h1>
+        
+        <div th:if="${#lists.isEmpty(empleados)}" class="alert alert-info">
+            No hay empleados registrados.
+        </div>
+        
+        <table class="table">
+            <thead>
+                <tr><th>ID</th><th>Nombre</th><th>Puesto</th><th>Teléfono</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="e : ${empleados}">
+                    <td th:text="${e.id}"></td>
+                    <td th:text="${e.nombre}"></td>
+                    <td th:text="${e.puesto}"></td>
+                    <td th:text="${e.telefono}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <a th:href="@{/empleados/nuevo}" class="btn btn-primary">Nuevo Empleado</a>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

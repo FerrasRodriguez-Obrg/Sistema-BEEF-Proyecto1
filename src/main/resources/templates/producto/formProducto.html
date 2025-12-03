@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Producto – Formulario simple</title>
+  
+  <head th:replace="~{fragments/layout :: head('THE BEEF · Producto')}"></head>
+
+  <style>
+    /* VARIABLES THE BEEF - MINIMALISTA */
+    :root{ 
+      --tb-azul-oscuro:#003366; 
+      --tb-azul-claro:#007bff;   
+      --tb-blanco:#ffffff;
+      --tb-gris-claro:#f8f9fa; /* Fondo general sutil */
+      --tb-gris-fuerte:#343a40; /* Texto principal */
+      --tb-separador:#dee2e6;
+    }
+    
+    body{ 
+        font-family:Poppins, system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; 
+        background:var(--tb-gris-claro); /* Fondo claro THE BEEF */
+        color: var(--tb-gris-fuerte);
+    }
+    .wrap{ 
+        max-width:720px; 
+        margin:2rem auto; /* Ajustamos margen */
+        padding:0 12px; 
+    }
+    
+    .card{ 
+        background:var(--tb-blanco); 
+        border:1px solid var(--tb-separador); 
+        border-radius:10px; 
+        overflow:hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border-top: 4px solid var(--tb-azul-claro); /* Acento azul */
+    }
+    
+    /* ELIMINAMOS LA BARRA TRICOLOR */
+    .card .bar{ display:none; }
+    
+    h1{ 
+        font-size:1.4rem; 
+        margin:1rem 1.2rem; 
+        font-weight:700;
+        color: var(--tb-azul-oscuro);
+        border-bottom: 1px solid var(--tb-separador);
+        padding-bottom: 0.5rem;
+    }
+
+    /* Estilos de formulario minimalistas */
+    form{ padding:0 1.2rem 1.2rem; display:flex; flex-direction:column; gap:15px; }
+    label{ font-weight:600; font-size:1rem; color: var(--tb-gris-fuerte); }
+    
+    input[type="text"], input[type="number"], select, textarea, input[type="file"]{
+      width:100%; padding:.7rem; 
+      border:1px solid #ced4da; 
+      border-radius:6px; 
+      font:inherit; 
+      background:#fff;
+      color: var(--tb-gris-fuerte);
+      transition: border-color 0.2s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--tb-azul-claro);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+        outline: none;
+    }
+    
+    textarea{ min-height:100px; resize:vertical; }
+    .row{ display:flex; gap:15px; }
+    .row > div{ flex:1; }
+
+    /* Estilos de Acciones (Botones) */
+    .actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:1rem; }
+    
+    .btn{ 
+        appearance:none; 
+        border:1px solid var(--tb-separador); 
+        background:#f8f9fa; /* Gris claro */
+        padding:.65rem 1.2rem; 
+        border-radius:6px; 
+        cursor:pointer; 
+        font-weight:600;
+        transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .btn:hover { background: #e9ecef; }
+    
+    .btn.primary{ 
+        background:var(--tb-azul-claro); 
+        border-color:var(--tb-azul-claro); 
+        color:var(--tb-blanco);
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+    }
+    .btn.primary:hover{ 
+        background:#0056b3; 
+        border-color:#0056b3; 
+    }
+    
+    /* Alerta de error */
+    .alert{ 
+        margin:12px 16px; 
+        padding:.75rem 1rem; 
+        border-radius:8px; 
+        border:1px solid #f8d7da; /* Rojo de Bootstrap */
+        background:#f8d7da; 
+        color:#721c24; /* Rojo oscuro de Bootstrap */
+    }
+  </style>
+</head>
+
+<header th:replace="~{fragments/layout :: header('productos')}"></header>
+
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="bar" aria-hidden="true"></div>
+      <h1>Formulario de Producto</h1>
+
+      <div th:if="${errorUpload}" class="alert" th:text="${errorUpload}"></div>
+
+      <form th:action="@{/producto/guardar}" th:object="${producto}" method="post" enctype="multipart/form-data">
+        <input type="hidden" th:field="*{id}" />
+
+        <div>
+          <label for="nombre">Nombre *</label>
+          <input id="nombre" type="text" th:field="*{nombre}" required 
+                 oninvalid="this.setCustomValidity('¡El nombre del producto es obligatorio!')"
+                 oninput="this.setCustomValidity('')" />
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="tipo">Tipo *</label>
+            <select id="tipo" th:field="*{tipo}" required
+                    oninvalid="this.setCustomValidity('Debes seleccionar el tipo de producto.')"
+                    oninput="this.setCustomValidity('')">
+              <option value="" disabled>Selecciona…</option>
+              <option value="Platillo">Platillo</option>
+              <option value="Bebida">Bebida</option>
+              <option value="Postre">Postre</option>
+            </select>
+          </div>
+          <div>
+            <label for="precio">Precio (MXN) *</label>
+            <input id="precio" type="number" th:field="*{precio}" min="0.01" step="0.01" required 
+                   oninvalid="this.setCustomValidity('El precio debe ser mayor a $0.00.')"
+                   oninput="this.setCustomValidity('')" />
+          </div>
+        </div>
+
+        <div>
+          <label for="descripcion">Descripción *</label>
+          <textarea id="descripcion" th:field="*{descripcion}" required
+                    oninvalid="this.setCustomValidity('¡La descripción del producto es obligatoria!')"
+                    oninput="this.setCustomValidity('')"></textarea>
+        </div>
+
+        <div>
+          <label for="imagenFile">Imagen (archivo)</label>
+          <input id="imagenFile" name="imagenFile" type="file" accept="image/*" />
+        </div>
+
+        <input type="hidden" th:field="*{fotoproducto}" />
+
+        <div class="actions">
+          <a class="btn" th:href="@{/listaproductos}">Cancelar</a>
+          <button class="btn primary" type="submit">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

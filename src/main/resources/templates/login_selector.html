@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>THE BEEF - Acceso</title>
+    
+    <head th:replace="~{fragments/layout :: head('Acceso')}"></head>
+
+    <style>
+        /* NOTA: Las variables de color (tb-azul-oscuro, tb-blanco, tb-gris-claro) 
+                 vienen de fragments/layout :: head y ya están disponibles. */
+        
+        /* ESTILO DEL CUERPO: Ocupa toda la altura y centra el contenido */
+        body {
+            /* Eliminamos el padding superior e inferior por defecto del layout */
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            
+            /* Forzamos el centrado completo sin la barra de navegación */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background: var(--tb-gris-claro);
+            font-family: Poppins, sans-serif;
+        }
+        
+        .selector-card {
+            background: var(--tb-blanco);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            border-top: 5px solid var(--tb-azul-claro); /* Acento del tema */
+        }
+
+        .btn-access {
+            display: block; /* Asegura que el enlace se comporte como botón de ancho completo */
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-admin {
+            background: var(--tb-azul-oscuro);
+            color: var(--tb-blanco);
+            border: 2px solid var(--tb-azul-oscuro);
+        }
+        .btn-admin:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .btn-guest {
+            background: var(--tb-blanco);
+            color: var(--tb-azul-claro);
+            border: 2px solid var(--tb-azul-claro);
+        }
+        .btn-guest:hover {
+            background: var(--tb-azul-claro);
+            color: var(--tb-blanco);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="selector-card">
+    <h1 style="color: var(--tb-azul-oscuro); font-size: 2rem; margin-bottom: 25px;">
+        THE BEEF - Acceso
+    </h1>
+    
+    <a th:href="@{/dashboard}" class="btn-access btn-admin">
+        <i class="bi bi-gear-fill me-2"></i> ADMINISTRADOR
+    </a>
+    
+    <a th:href="@{/invitado}" class="btn-access btn-guest">
+        <i class="bi bi-person-fill me-2"></i> INVITADO / CLIENTE
+    </a>
+    
+    <p class="text-muted small mt-4">Selecciona tu rol para continuar.</p>
+</div>
+
+</body>
+</html>

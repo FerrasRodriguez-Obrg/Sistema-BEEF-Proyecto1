@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta charset="UTF-8" />
+    <title th:text="'Ticket de Pedido #' + ${pedido.id}">Ticket de Pedido</title>
+    <style>
+        /* Estilos de Ticket THE BEEF */
+        body { font-family: Arial, sans-serif; font-size: 10pt; width: 80mm; margin: 0 auto; }
+        .ticket-container { padding: 5px; } 
+        .ticket-header { text-align: center; margin-bottom: 10px; border-bottom: 1px dashed #666; padding-bottom: 5px; }
+        .ticket-header h2 { font-size: 14pt; margin-bottom: 2px; color: #003366; }
+        
+        .info-grid { 
+            margin-bottom: 15px; 
+            border-top: 1px dashed #666; 
+            border-bottom: 1px dashed #666; 
+            padding: 5px 0; 
+        }
+        .info-grid p { margin: 0; line-height: 1.4; }
+        
+        .table-detalle { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        .table-detalle th, .table-detalle td { border-bottom: 1px dotted #ccc; padding: 4px 0; font-size: 9pt; text-align: left; }
+        .table-detalle th { font-weight: bold; }
+        .table-detalle .cantidad { width: 10%; text-align: right; }
+        .table-detalle .precio { width: 30%; text-align: right; }
+        
+        .total-row td { font-weight: bold; font-size: 11pt; border-top: 2px solid #000; padding-top: 8px; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+    </style>
+</head>
+<body th:object="${pedido}">
+
+<div class="ticket-container">
+    <div class="ticket-header">
+        <h2>THE BEEF</h2>
+        <p th:text="'Ticket de Consumo - ' + ${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}"></p>
+    </div>
+
+    <div class="info-grid">
+        <p>Cliente: <span th:text="*{cliente.nombre} + ' ' + *{cliente.apellidos}"></span></p>
+        <p>Pedido No.: <span th:text="*{id}"></span></p>
+        
+        <p th:if="*{reservacionOrigen != null}">
+            Mesa: <span th:text="*{reservacionOrigen.mesaAsignada.idMesa}"></span>
+        </p>
+        
+        <p th:if="*{reservacionOrigen != null and reservacionOrigen.empleadoAsignado != null}">
+            Empleado: <span th:text="*{reservacionOrigen.empleadoAsignado.nombre}"></span>
+        </p>
+        <p th:if="*{reservacionOrigen != null and reservacionOrigen.empleadoAsignado == null}">
+            Empleado: <span style="font-weight: normal;">N/A (No Asignado)</span>
+        </p>
+    </div>
+
+    <table class="table-detalle">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th class="cantidad">Cant.</th>
+                <th class="precio">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="detalle : *{detalles}">
+                <td th:text="${detalle.producto.nombre}"></td>
+                <td class="cantidad" th:text="${detalle.cantidad}"></td>
+                <td class="precio" th:text="'$ ' + ${#numbers.formatDecimal(detalle.subtotal, 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="2">TOTAL PAGADO:</td>
+                <td class="precio" th:text="'$ ' + ${#numbers.formatDecimal(pedido.total, 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="text-center">
+        <p>¡Gracias por su visita!</p>
+    </div>
+</div>
+
+</body>
+</html>

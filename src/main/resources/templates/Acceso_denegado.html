@@ -1,0 +1,74 @@
+<!-- src/main/resources/templates/acceso_denegado.html -->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Acceso Denegado</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root{
+            --tb-azul-oscuro: #003366; 
+            --tb-gris-claro: #f8f9fa;
+            --tb-red-light: #dc3545;
+        }
+        body { 
+            background: var(--tb-gris-claro); 
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .error-container {
+            max-width: 500px;
+            padding: 40px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid var(--tb-red-light);
+        }
+        .icon-large {
+            font-size: 4rem;
+            color: var(--tb-red-light);
+            margin-bottom: 1rem;
+        }
+        .titulo {
+            color: var(--tb-azul-oscuro);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .btn-volver {
+            background: var(--tb-azul-oscuro);
+            color: white;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="error-container">
+    <i class="bi bi-shield-slash icon-large"></i>
+    <h1 class="titulo">¡Acceso Denegado!</h1>
+    <p class="lead text-danger">
+        No tienes los permisos necesarios para ver esta página.
+    </p>
+    <p class="mb-4 text-muted">
+        Tu rol actual no está autorizado para acceder a este recurso. 
+        Si crees que esto es un error, contacta al administrador.
+    </p>
+    
+    <a th:href="@{/dashboard.html}" class="btn btn-lg btn-volver">
+        <i class="bi bi-house-door-fill me-2"></i> Ir al Dashboard
+    </a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
