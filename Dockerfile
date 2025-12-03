@@ -1,8 +1,8 @@
 # --------------------------------------------------------------------------------
 # ETAPA 1: BUILDER (Compilación del código Java)
 # --------------------------------------------------------------------------------
-# USAR: maven:3-openjdk-17-slim (más genérico y confiable)
-FROM maven:3-openjdk-17-slim AS builder 
+# CORRECCIÓN: Usamos maven:3-jdk-17-alpine (estable y ligera)
+FROM maven:3-jdk-17-alpine AS builder 
 WORKDIR /app
 
 # Copia los archivos necesarios para la compilación
@@ -18,7 +18,7 @@ RUN mvn clean package -DskipTests
 # --------------------------------------------------------------------------------
 # ETAPA 2: RUNTIME (Ejecución)
 # --------------------------------------------------------------------------------
-# USAR: openjdk:17-jdk-slim (quitamos el tag específico 17-jdk-slim para usar uno más genérico)
+# CORRECCIÓN: Usamos openjdk:17-alpine (estable y ligera)
 FROM openjdk:17-alpine
 WORKDIR /app
 
