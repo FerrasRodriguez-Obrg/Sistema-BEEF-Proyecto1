@@ -29,7 +29,7 @@ COPY --from=builder /app/${JAR_FILE} app.jar
 
 # Crea el directorio de uploads requerido por tu application.properties
 # Render necesita esta ruta aunque sea un Windows path temporal en el properties.
-RUN mkdir -p /app/c:/tmp
+RUN mkdir -p /app/uploads
 
 # Puerto de la aplicación
 EXPOSE 8080
