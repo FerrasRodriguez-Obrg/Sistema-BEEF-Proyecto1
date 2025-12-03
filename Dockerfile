@@ -2,7 +2,7 @@
 # ETAPA 1: BUILDER (Compilación del código Java)
 # --------------------------------------------------------------------------------
 # CORRECCIÓN: Usamos maven:3-jdk-17-alpine (estable y ligera)
-FROM maven:3-jdk-17-alpine AS builder 
+FROM maven:3-jdk-17-alpine AS builder
 WORKDIR /app
 
 # Copia los archivos necesarios para la compilación
@@ -19,7 +19,7 @@ RUN mvn clean package -DskipTests
 # ETAPA 2: RUNTIME (Ejecución)
 # --------------------------------------------------------------------------------
 # CORRECCIÓN: Usamos openjdk:17-alpine (estable y ligera)
-FROM openjdk:17-alpine
+FROM openjdk:17-jdk-alpine
 WORKDIR /app
 
 # Define el nombre del JAR
