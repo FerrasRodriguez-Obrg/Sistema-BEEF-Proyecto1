@@ -1,8 +1,8 @@
 # --------------------------------------------------------------------------------
 # ETAPA 1: BUILDER (Compilación del código Java)
 # --------------------------------------------------------------------------------
-# USAR: Una etiqueta Maven/Java 17 estándar
-FROM maven:3-jdk-17 AS builder 
+# USAR: Imagen de Eclipse Temurin con Maven (Alternativa a OpenJDK)
+FROM maven:3-jdk-17-temurin AS builder 
 WORKDIR /app
 
 # Copia los archivos necesarios para la compilación
@@ -18,8 +18,8 @@ RUN mvn clean package -DskipTests
 # --------------------------------------------------------------------------------
 # ETAPA 2: RUNTIME (Ejecución)
 # --------------------------------------------------------------------------------
-# USAR: Una etiqueta Java 17 estándar (la más común)
-FROM openjdk:17-slim
+# USAR: Imagen de Eclipse Temurin para la ejecución final (más ligera)
+FROM eclipse-temurin:17-jre-alpine 
 WORKDIR /app
 
 # Define el nombre del JAR
